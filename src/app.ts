@@ -3,18 +3,21 @@ import logger from './utils/logger';
 import cors from 'cors'
 import corsOptions from './utils/corsOptions';
 import config from 'config'
-import { userRoute, sessionRoute, pictureRoute } from './routes';
+import { userRoute, sessionRoute, pictureRoute, rootRoute } from './routes';
+import path from 'path'
 const app = express();
 const PORT = config.get<number>('port')
 
 app.use(cors(corsOptions))
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: false }))
 
 
 app.use(userRoute)
 app.use(sessionRoute)
 app.use(pictureRoute)
 
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(rootRoute)
 
 app.listen(PORT, () => logger.info('Server running'))

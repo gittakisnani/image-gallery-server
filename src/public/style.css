@@ -1,0 +1,37 @@
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body,
+html {
+    width: 100vw;
+    min-height: 100vh;
+    font-family: 'Open Sans', sans-serif;
+}
+
+main {
+    width: 100vw;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background-color: black;
+    color: white;
+}
+
+@keyframes animateWelcome {
+    from {
+        transform: scale(0.5);
+    } to {
+        transform: scale(1);
+    }
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 600;
+    animation: animateWelcome 250ms ease-in-out;
+}
