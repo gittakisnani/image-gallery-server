@@ -42,7 +42,11 @@ export const editUserSchema = object({
         ...userIdParams
     }),
     body: object({
-        ...body,
+        firstName: string().optional(),
+        lastName: string().optional(),
+        email: string().email('email is not a valid email').optional(),
+        password: string().min(8, 'Password should be 8 characters at least').optional(),
+        bio: string().optional(),
         picture: string().optional(),
         location: string().optional(),
         website: string().optional(),

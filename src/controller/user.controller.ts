@@ -9,7 +9,6 @@ export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, r
         const user = await createUser(req.body);
         res.status(201).json(omit(user.toJSON(), privateFields))
     } catch(err: any) {
-        logger.error(err)
         if(err?.code === 11000) {
             res.status(403).json({ message: 'You cannot use already registered email'})
         } else {
@@ -32,9 +31,11 @@ export async function updateUserHandler(req: Request<UpdateUserInput['params'], 
     try {
         const user = await findUserAndUpdate(req.params.userId, req.body);
         res.json(omit(user?.toJSON(), privateFields))
-    } catch(err) {
-        logger.error(err);
-        res.status(400).json(err)
+    } catch(err: any) {
+        // logger.error(err.code);
+        if(err.code === 11000) {
+            res.status(403).json({ message: 'Email is already registered'})
+        } else res.status(400).json({ message: 'Cannot save changes'})
     }
 }
 
