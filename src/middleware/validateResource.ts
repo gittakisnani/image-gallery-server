@@ -12,6 +12,7 @@ const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: N
         next()
     } catch(err) {
         logger.error(err)
+        res.json(err)
     }
 }
 

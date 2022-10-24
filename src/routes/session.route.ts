@@ -5,7 +5,7 @@ import { createSessionSchema, findSessionSchema, findSessionsSchema } from "../s
 
 const router = Router();
 
-router.post('/sessions/new', validate(createSessionSchema), createSessionHandler)
+router.post('/sessions/create', validate(createSessionSchema), createSessionHandler)
 
 
 router.route('/sessions/:user')

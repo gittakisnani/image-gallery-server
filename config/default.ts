@@ -1,3 +1,4 @@
 export default {
-    port: 1337
+    port: 1337,
+    databaseUri: ''
 }

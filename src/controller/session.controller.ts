@@ -8,11 +8,11 @@ export async function createSessionHandler(req: Request<{}, {}, CreateSessionInp
     //@ts-ignore
     if(user.error) return res.status(400).json({ message: user.message})
 
-    const session = createSession(user, req.get('user-agent') || '')
+    const session = await createSession(user, req.get('user-agent') || '')
     if(!session) return res.status(400).json({ message: 'Cannot create session.'});
 
 
-
+    console.log(session)
     res.status(201).json(session)
 }
 
@@ -20,7 +20,7 @@ export async function createSessionHandler(req: Request<{}, {}, CreateSessionInp
 export async function deleteSessionHandler(req: Request<FindSessionInput>, res: Response) {
     const { sessionId } = req.params;
 
-    const session = updateSession(sessionId, { valid: false });
+    const session = await updateSession(sessionId, { valid: false });
     if(!session) return res.status(400).json({ message: 'Session not found.'});
 
     res.json(session)
@@ -30,7 +30,7 @@ export async function deleteSessionHandler(req: Request<FindSessionInput>, res: 
 
 export async function deleteSessionsHandler(req: Request<FindSessionsInput>, res: Response) {
     const { user } = req.params;
-    const sessions = updateSessions({ user }, { valid: false })
+    const sessions = await updateSessions({ user }, { valid: false })
     if(!sessions) return res.status(400).json({ message: 'Sessions not found.'})
 
 
@@ -38,7 +38,7 @@ export async function deleteSessionsHandler(req: Request<FindSessionsInput>, res
 }
 
 export async function findSessionHandler(req: Request<FindSessionInput>, res: Response) {
-    const session = findSession(req.params.sessionId);
+    const session = await findSession(req.params.sessionId);
     if(!session) return res.status(400).json({ message: 'Cannot find session.'})
 
 
@@ -47,7 +47,7 @@ export async function findSessionHandler(req: Request<FindSessionInput>, res: Re
 
 
 export async function findSessionsHandler(req: Request<FindSessionsInput>, res: Response) {
-    const sessions = findSessions({ user: req.params.user });
+    const sessions = await findSessions({ user: req.params.user });
     if(!sessions) return res.status(400).json({ message: 'Cannot find sessions.'});
 
 

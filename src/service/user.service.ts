@@ -9,22 +9,22 @@ export const privateFields = ['__v', 'password']
 
 //create user 
 export async function createUser(input: CreateUserInput) {
-    return await User.create(input)
+    return User.create(input)
 }
 
 //Get user by userId;
-export async function findUser(query: FilterQuery<UserDocument['_id']>) {
-    return await User.findById(query).lean().exec();
+export async function findUser(query: string) {
+    return User.findById(query).lean().exec();
 }
 
 //updateUser
-export async function findUserAndUpdate(query: FilterQuery<UserDocument['_id']>, update: UpdateQuery<UserDocument>, options?: QueryOptions) {
+export async function findUserAndUpdate(query: string, update: UpdateQuery<UserDocument>, options?: QueryOptions) {
     return User.findByIdAndUpdate(query, update, { ...(options && options), new: true })
 }
 
 //deleteUser
-export async function findUserAndDelete(query: FilterQuery<UserDocument['_id']>) {
-    return await User.findByIdAndDelete(query)
+export async function findUserAndDelete(query: string) {
+    return User.findByIdAndDelete(query)
 }
 
 export async function validatePassword({ email, password }: CreateSessionInput) {
