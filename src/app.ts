@@ -10,6 +10,19 @@ import path from 'path'
 import connect from './utils/dbConnect';
 const app = express();
 const PORT = config.get<number>('port')
+import mongoose from 'mongoose'
+import Grid, { Grid as GridInterface } from 'gridfs-stream'
+
+let gfs: GridInterface, gridFsBucket: any;
+
+const connection = mongoose.connection;
+connection.once('open', function() {
+    gridFsBucket = new mongoose.mongo.GridFSBucket(connection.db, {
+        bucketName: 'photos'
+    })
+    gfs = Grid(connection.db, mongoose.mongo);
+    gfs.collection('photos')
+})
 
 app.use(cors(corsOptions))
 app.use(express.json());
@@ -21,8 +34,17 @@ app.use(sessionRoute)
 app.use(pictureRoute)
 
 app.use(express.static(path.join(__dirname, 'public')))
-app.use(rootRoute)
+app.get('/file/:filename', async (req, res) => {
+    try {
+        const file = await gfs.files.findOne({ filename: req.params.filename });
+        gridFsBucket.openDownloadStream(file?._id).pipe(res)
+    } catch (error) {
+        logger.error(error)
+        res.send('Not found')
+    }
+})
 
+app.use(rootRoute)
 app.listen(PORT, () => {
     logger.info('Server running');
     connect()
