@@ -1,7 +1,21 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import Session, { SessionDocument, SessionInput } from "../model/session.model";
+import config from 'config'
+import { UserDocument } from "../model/user.model";
+import { singJWT } from "../utils/jwt.util";
+import { CookieOptions } from "express";
 
-export async function createSession(userId: string, userAgent: string) {
+
+export const cookiesOptions: CookieOptions = {
+    secure: true,
+    sameSite: 'none',
+    httpOnly: true,
+    maxAge: 60 * 15 * 1000
+}
+
+
+
+export async function createSession(userId: string, userAgent?: string) {
     return Session.create({ user: userId, userAgent })
 }
 
@@ -21,4 +35,19 @@ export async function findSession(query: string) {
 
 export async function findSessions(query: FilterQuery<SessionDocument>) {
     return Session.find(query).exec()
+}
+
+export function signAccessToken(user: UserDocument) {
+    const payload = user.toJSON();
+    const accessToken = singJWT(payload, 'accessTokenPrivateKey', { expiresIn: config.get<string>('accessTokenTtl') })
+
+    return accessToken
+}
+
+
+export function signRefreshToken(session: SessionDocument) {
+    const payload = session.toJSON()
+
+    const refreshToken = singJWT({ session: payload._id }, 'refreshTokenPrivateKey', { expiresIn: config.get<string>('refreshTokenTtl')})
+    return refreshToken;
 }

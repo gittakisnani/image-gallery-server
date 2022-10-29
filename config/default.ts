@@ -1,4 +1,10 @@
 export default {
     port: 1337,
-    databaseUri: ''
+    databaseUri: '',
+    accessTokenTtl: '15m',
+    refreshTokenTtl: '1y',
+    accessTokenPrivateKey: '',
+    refreshTokenPrivateKey: '',
+    accessTokenPublicKey: '',
+    refreshTokenPublicKey: ''
 }

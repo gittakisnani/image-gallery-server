@@ -1,19 +1,47 @@
 import { Request, Response } from "express";
+import { get } from "lodash";
+import { UserDocument } from "../model/user.model";
 import { CreateSessionInput, FindSessionInput, FindSessionsInput } from "../schema/session.schema";
-import { createSession, findSession, findSessions, updateSession, updateSessions } from "../service/session.service";
-import { validatePassword } from "../service/user.service";
+import { cookiesOptions, createSession, findSession, findSessions, signAccessToken, signRefreshToken, updateSession, updateSessions } from "../service/session.service";
+import { findUser, validatePassword } from "../service/user.service";
+import { verifyJWT } from "../utils/jwt.util";
 
 export async function createSessionHandler(req: Request<{}, {}, CreateSessionInput>, res: Response) {
     const user = await validatePassword(req.body);
     //@ts-ignore
-    if(user.error) return res.status(400).json({ message: user.message})
+    if(user.error) return res.status(400).json({ message: user.message })
 
-    const session = await createSession(user, req.get('user-agent') || '')
+    const session = await createSession((user as UserDocument)._id, req.get('user-agent') || '')
     if(!session) return res.status(400).json({ message: 'Cannot create session.'});
 
 
-    console.log(session)
-    res.status(201).json(session)
+    const accessToken = signAccessToken(user as UserDocument);
+    const refreshToken = signRefreshToken(session);
+    res.cookie('at', accessToken, cookiesOptions)
+    res.cookie('rt', refreshToken, {...cookiesOptions, maxAge: 31557600000 })
+
+
+    res.status(201).json({ accessToken, refreshToken })
+}
+
+
+export async function refreshAccessToken(req: Request, res: Response) {
+    const refreshToken = get(req.cookies, 'rt');
+    if(!refreshToken) return res.status(401).json({ message: 'Cannot refresh accessToken, No accesstoken provided'});
+
+    const decoded = verifyJWT<{ session: string }>(refreshToken, 'refreshTokenPublicKey');
+    if(!decoded) return res.status(401).json({ message: 'Cannot refresh accessToken, refreshtoken is expired'});
+
+
+    const session = await findSession(decoded.session);
+    if(!session || !session.valid) return res.status(401).json({ message: 'Cannot refresh accessToken'});
+
+    const user = await findUser(session.user);
+    if(!user) return res.status(401).json({ message: 'Cannot refresh accessToken, no user matches'});
+
+    const newAccessToken = signAccessToken(user);
+    
+    res.json({ newAccessToken })
 }
 
 
