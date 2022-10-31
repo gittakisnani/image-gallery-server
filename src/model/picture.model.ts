@@ -37,11 +37,9 @@ const pictureSchema = new mongoose.Schema({
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
     }],
     views: [{
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
     }],
     downloads: {
         type: Number,
@@ -61,6 +59,10 @@ const pictureSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0
+    },
+    image: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true

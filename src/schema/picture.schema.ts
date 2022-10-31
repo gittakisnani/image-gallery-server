@@ -46,8 +46,16 @@ export const updatePictureSchema = object({
     })
 })
 
+export const likeOrCollectPictureSchema = object({
+    params: object({
+        me: string(),
+        picId: string()
+    })
+})
+
 
 export type CreatePictureInput = TypeOf<typeof createPictureSchema>['body'];
 export type FindPictureInput = TypeOf<typeof findPictureSchema>['params'];
 export type FindPicturesInput = TypeOf<typeof findPicturesSchema>['params'];
 export type UpdatePictureInput = TypeOf<typeof updatePictureSchema>
+export type LikeOrCollectPictureInput = TypeOf<typeof likeOrCollectPictureSchema>['params']

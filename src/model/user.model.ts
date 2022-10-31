@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { UpdateUserInput } from "../schema/user.schema";
 import argon2 from "argon2";
 
@@ -6,6 +6,10 @@ import argon2 from "argon2";
 export interface UserDocument extends mongoose.Document, Required<UpdateUserInput['body']> {
     createdAt: Date,
     updatedAt: Date,
+    following: string[]
+    followers: string[]
+    my_likes: string[]
+    my_bookmarks: string[]
     comparePassword: (candidatePwd: string) => Promise<Boolean>;
 }   
 
@@ -28,6 +32,18 @@ const userSchema = new mongoose.Schema(
             required: true,
             type: String
         },
+        following:[{
+            type: String
+        }],
+        my_likes:[{
+            type: String
+        }],
+        my_bookmarks:[{
+            type: String
+        }],
+        followers: [{
+            type: String
+        }],
         picture: {
             type: String,
             default: 'https://cdn.vectorstock.com/i/preview-1x/77/30/default-avatar-profile-icon-grey-photo-placeholder-vector-17317730.webp'

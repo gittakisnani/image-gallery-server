@@ -14,7 +14,7 @@ export async function createUser(input: CreateUserInput) {
 
 //Get user by userId;
 export async function findUser(query: string) {
-    return User.findById(query).lean().exec();
+    return User.findById(query).exec();
 }
 
 //updateUser
@@ -27,12 +27,17 @@ export async function findUserAndDelete(query: string) {
     return User.findByIdAndDelete(query)
 }
 
-export async function validatePassword({ email, password }: CreateSessionInput) {
+interface IncorrectPwd {
+    error: true
+    message: string
+}
+
+export async function validatePassword({ email, password }: CreateSessionInput) : Promise<IncorrectPwd | UserDocument>  {
     const user = await User.findOne({ email }).exec();
     if(!user) return { error: true, message: 'User not found'}
 
     const valid = await user.comparePassword(password);
     if(!valid) return { error: true, message: 'Invalid credentials'}
 
-    return user._id
+    return user
 }

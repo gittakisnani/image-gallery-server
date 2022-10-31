@@ -12,8 +12,10 @@ const app = express();
 const PORT = config.get<number>('port')
 import mongoose from 'mongoose'
 import Grid, { Grid as GridInterface } from 'gridfs-stream'
-
+import cookieParser from 'cookie-parser'
+import deserializeUser from './middleware/deserializeUser';
 let gfs: GridInterface, gridFsBucket: any;
+
 
 const connection = mongoose.connection;
 connection.once('open', function() {
@@ -26,9 +28,10 @@ connection.once('open', function() {
 
 app.use(cors(corsOptions))
 app.use(express.json());
+app.use(cookieParser())
 app.use(express.urlencoded({ extended: false }))
 
-
+app.use(deserializeUser)
 app.use(userRoute)
 app.use(sessionRoute)
 app.use(pictureRoute)

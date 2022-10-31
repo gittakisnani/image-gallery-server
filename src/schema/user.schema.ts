@@ -57,8 +57,16 @@ export const editUserSchema = object({
     })
 })
 
+export const followUserSchema = object({
+    params: object({
+        userId: string(),
+        meId: string() 
+    })
+})
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>['body'];
 export type GetUserInput = TypeOf<typeof findUserSchema>['params'];
 export type DeleteUserInput = TypeOf<typeof findUserSchema>['params'];
 export type UpdateUserInput = TypeOf <typeof editUserSchema>
+export type FollowUserInput = TypeOf<typeof followUserSchema>['params']
 

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { omit } from "lodash";
 import { UserDocument } from "../model/user.model";
-import { CreatePictureInput, FindPictureInput, FindPicturesInput, UpdatePictureInput } from "../schema/picture.schema";
+import { CreatePictureInput, FindPictureInput, FindPicturesInput, LikeOrCollectPictureInput, UpdatePictureInput } from "../schema/picture.schema";
 import { createPicture, deletePicture, deletePictures, findPicture, findPictures, updatePicture } from "../service/picture.service";
-
+import { findUser } from "../service/user.service";
 export async function createPictureHandler(req: Request<{}, {}, CreatePictureInput>, res: Response) {
     const picture = await createPicture(req.body);
     if(!picture) return res.status(400).json({ message: 'Cannot create picture.'})
@@ -24,6 +24,14 @@ export async function findPictureHandler(req: Request<FindPictureInput>, res: Re
 export async function findPicturesHandler(req: Request<FindPicturesInput>, res: Response) {
     const pictures = await findPictures({ user: req.params.user })
     if(!pictures) return res.status(400).json({ message: 'Cannot find pictures'})
+
+
+    res.json(pictures.map(pic => omit(pic.toJSON(), ['__v'])))
+}
+
+export async function findAllPictures(req: Request, res: Response) {
+    const pictures = await findPictures({ });
+    if(!pictures) return res.status(400).json({ message: 'No pictures found'}) 
 
 
     res.json(pictures.map(pic => omit(pic.toJSON(), ['__v'])))
@@ -56,37 +64,39 @@ export async function deletePicturesHandler(req: Request<FindPicturesInput>, res
 }
 
 
-export async function likePictureHandler(req: Request<FindPictureInput>, res: Response) {
-    const user = (res.locals.user as UserDocument)._id
-    const picture = await findPicture(req.params.pictureId);
+export async function likePictureHandler(req: Request<LikeOrCollectPictureInput>, res: Response) {
+    const { picId, me: user} = req.params;
+    const picture = await findPicture(picId);
     if(!picture) return res.status(400).json({ message: 'picture not found'});
+    const me = await findUser(user)
 
-
-    if(picture.likes.indexOf(user) !== -1) {
-        picture.likes = picture.likes.filter(userId => userId !== user)
+    if(!picture.likes.includes(user) && !me?.my_likes.includes(picId)) {
+        picture.likes.push(user);
+        me?.my_likes.push(picId)
     } else {
-        picture.likes.push(user)
+        picture.likes = picture.likes.filter(id => id !== user)
+        //@ts-ignore
+        me?.my_likes = me?.my_likes.filter(id => id !== picId) 
     }
+    
+    await picture.save();
+    //@ts-ignore
+    await me.save();
 
-    const edited = await picture.save();
-
-    res.json(edited)
+    res.json({ picture, me })
 }
 
+export async function collectPictureHandler(req: Request<FindPictureInput>, res: Response) {
+    const { pictureId } = req.params
+    const userId = res.locals.user._id as string;
+    const me = await findUser(userId);
 
-export async function viewPictureHandler(req: Request<FindPictureInput>, res: Response) {
-    const user = (res.locals.user as UserDocument)._id
-    const picture = await findPicture(req.params.pictureId);
-    if(!picture) return res.status(400).json({ message: 'picture not found'});
-
-
-    if(picture.views.indexOf(user) !== -1) {
-        picture.views = picture.views.filter(userId => userId !== user)
+    if(me?.my_bookmarks.includes(pictureId)) {
+        me.my_bookmarks = me.my_bookmarks.filter(id => id !== pictureId)
     } else {
-        picture.views.push(user)
+        me?.my_bookmarks.push(pictureId)
     }
 
-    const edited = await picture.save();
-
-    res.json(edited)
+    //@ts-ignore
+    await me.save()
 }
