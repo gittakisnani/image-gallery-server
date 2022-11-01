@@ -1,9 +1,13 @@
 import { Request, Response } from "express";
 import { omit } from "lodash";
-import { UserDocument } from "../model/user.model";
-import { CreatePictureInput, FindPictureInput, FindPicturesInput, LikeOrCollectPictureInput, UpdatePictureInput } from "../schema/picture.schema";
+import { CreatePictureInput, DownloadImageInput, FindPictureInput, FindPicturesInput, LikeOrCollectPictureInput, UpdatePictureInput } from "../schema/picture.schema";
 import { createPicture, deletePicture, deletePictures, findPicture, findPictures, updatePicture } from "../service/picture.service";
 import { findUser } from "../service/user.service";
+import axios from "axios";
+import path from 'path'
+import fs from 'fs'
+import os from 'os'
+
 export async function createPictureHandler(req: Request<{}, {}, CreatePictureInput>, res: Response) {
     const picture = await createPicture(req.body);
     if(!picture) return res.status(400).json({ message: 'Cannot create picture.'})
@@ -99,4 +103,33 @@ export async function collectPictureHandler(req: Request<FindPictureInput>, res:
 
     //@ts-ignore
     await me.save()
+}
+
+
+export async function downloadImage(req: Request<{}, {}, DownloadImageInput>, res: Response) {
+    const { url } = req.body;
+
+    const savePath = `${os.homedir()}/Downloads` 
+
+    const { data } = await axios({
+        method: 'GET',
+        url,
+        responseType: 'stream'
+    })
+
+    data.pipe(fs.createWriteStream(savePath))
+
+
+    return new Promise((resolve, reject) => {
+        data.on('end', (data: any) => {
+            resolve(data);
+            res.json({ message: 'Downloaded', desk: `${os.homedir()}/Desktop`})
+        })
+
+        data.on('err', (err: any) => {
+            reject(err);
+            res.json({ message: 'Error while downloading.'})
+        })
+    })
+
 }

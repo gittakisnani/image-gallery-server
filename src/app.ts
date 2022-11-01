@@ -35,6 +35,9 @@ app.use(deserializeUser)
 app.use(userRoute)
 app.use(sessionRoute)
 app.use(pictureRoute)
+app.get('/healthcheck', (_, res) => {
+    res.sendStatus(200)
+})
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.get('/file/:filename', async (req, res) => {

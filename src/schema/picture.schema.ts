@@ -54,8 +54,16 @@ export const likeOrCollectPictureSchema = object({
 })
 
 
+export const downloadImageSchema = object({
+    body: object({
+        url: string()
+    })
+})
+
+
 export type CreatePictureInput = TypeOf<typeof createPictureSchema>['body'];
 export type FindPictureInput = TypeOf<typeof findPictureSchema>['params'];
 export type FindPicturesInput = TypeOf<typeof findPicturesSchema>['params'];
 export type UpdatePictureInput = TypeOf<typeof updatePictureSchema>
 export type LikeOrCollectPictureInput = TypeOf<typeof likeOrCollectPictureSchema>['params']
+export type DownloadImageInput = TypeOf<typeof downloadImageSchema>['body']
