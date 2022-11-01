@@ -7,7 +7,7 @@ router.get('^/$|/index(.html)?', sendRootFile)
 router.post('/file/upload', upload.single('file'), async (req, res) => {
     if(!req.file) return res.send('No file found');
     console.log(req.file)
-    const imageUrl = `http://localhost:1337/file/${req.file.filename}`;
+    const imageUrl = `https://image-gallery-server.onrender.com/file/${req.file.filename}`;
     res.send(imageUrl)
 })
 router.all('*', sendNotFoundFile)
