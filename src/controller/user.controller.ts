@@ -4,6 +4,7 @@ import { UserDocument } from "../model/user.model";
 import { CreateUserInput, DeleteUserInput, FollowUserInput, GetUserInput, UpdateUserInput } from "../schema/user.schema";
 import { createUser, findUser, findUserAndDelete, findUserAndUpdate, privateFields } from "../service/user.service";
 import logger from "../utils/logger";
+
 export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
     try {
         const user = await createUser(req.body);

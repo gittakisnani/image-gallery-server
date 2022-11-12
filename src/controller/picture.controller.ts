@@ -6,7 +6,6 @@ import { findUser } from "../service/user.service";
 import axios from "axios";
 import path from 'path'
 import fs from 'fs'
-import os from 'os'
 
 export async function createPictureHandler(req: Request<{}, {}, CreatePictureInput>, res: Response) {
     const picture = await createPicture(req.body);
@@ -109,7 +108,7 @@ export async function collectPictureHandler(req: Request<FindPictureInput>, res:
 export async function downloadImage(req: Request<{}, {}, DownloadImageInput>, res: Response) {
     const { url } = req.body;
 
-    const savePath = `${os.homedir()}/Downloads` 
+    const savePath = path.join(__dirname, '..', 'assets') 
 
     const { data } = await axios({
         method: 'GET',
@@ -123,7 +122,7 @@ export async function downloadImage(req: Request<{}, {}, DownloadImageInput>, re
     return new Promise((resolve, reject) => {
         data.on('end', (data: any) => {
             resolve(data);
-            res.json({ message: 'Downloaded', desk: `${os.homedir()}/Desktop`})
+            res.json({ message: 'Downloaded'})
         })
 
         data.on('err', (err: any) => {

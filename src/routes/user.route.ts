@@ -4,8 +4,11 @@ import requireUser from "../middleware/requireUser";
 import validate from "../middleware/validateResource";
 import { createUserSchema, editUserSchema, findUserSchema, followUserSchema } from "../schema/user.schema";
 
+
 const router = Router();
 
+router.get('/login', (_, res) => res.send('Login again'))
+router.get('/success', (_, res) => res.send('Success!'))
 router.post('/users/create',validate(createUserSchema), createUserHandler)
 router.get('/me', requireUser, getMe)
 

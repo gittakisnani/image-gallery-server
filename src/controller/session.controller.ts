@@ -85,5 +85,5 @@ export async function findSessionsHandler(req: Request<FindSessionsInput>, res: 
 export async function logoutHandler(req: Request, res: Response) {
     res.clearCookie('at', cookiesOptions)
     res.clearCookie('rt', {...cookiesOptions, maxAge: 31557600000 });
-    res.send('Logged ouy')
+    res.send('Logged out')
 }
