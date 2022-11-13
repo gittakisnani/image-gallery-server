@@ -64,9 +64,15 @@ export const followUserSchema = object({
     })
 })
 
+export const likesAndBookmarksSchema = object({
+    body: object({
+        array: string().array()
+    })
+})
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>['body'];
 export type GetUserInput = TypeOf<typeof findUserSchema>['params'];
 export type DeleteUserInput = TypeOf<typeof findUserSchema>['params'];
 export type UpdateUserInput = TypeOf <typeof editUserSchema>
 export type FollowUserInput = TypeOf<typeof followUserSchema>['params']
-
+export type LikesAndBookmarksInput = TypeOf<typeof likesAndBookmarksSchema>['body']

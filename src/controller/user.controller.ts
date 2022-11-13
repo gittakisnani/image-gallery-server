@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { omit } from "lodash";
+import Picture from "../model/picture.model";
 import { UserDocument } from "../model/user.model";
-import { CreateUserInput, DeleteUserInput, FollowUserInput, GetUserInput, UpdateUserInput } from "../schema/user.schema";
+import { CreateUserInput, DeleteUserInput, FollowUserInput, GetUserInput, LikesAndBookmarksInput, UpdateUserInput } from "../schema/user.schema";
 import { createUser, findUser, findUserAndDelete, findUserAndUpdate, privateFields } from "../service/user.service";
 import logger from "../utils/logger";
 
@@ -81,4 +82,10 @@ export async function getMe(req: Request, res: Response) {
     const { _id } = res.locals.user as UserDocument;
     const user = await findUser(_id);
     res.json(omit(user?.toJSON(), privateFields))
+}
+
+export async function getUserLikesAndBookmarks(req: Request, res: Response) {
+    const user = res.locals.user as UserDocument;
+    const pictures = await Picture.find({ _id: { $in: [...user.my_likes, ...user.my_bookmarks] }}).exec()
+    res.json(pictures.map(pic => omit(pic.toJSON(), ['__v'])))
 }
